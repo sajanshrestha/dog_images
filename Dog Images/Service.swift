@@ -7,10 +7,16 @@
 //
 
 import UIKit
+import Combine
 
 struct Service {
     
     static let session = URLSession.shared
+    
+    static var responseCancellable: AnyCancellable?
+    static var imageCancellable: AnyCancellable?
+    static var breedListCancellable: AnyCancellable?
+    
         
     enum EndPoint {
         
@@ -51,57 +57,49 @@ struct Service {
         }
     }
     
-    static private func getResponse(with url: URL, completion: @escaping (Response) -> Void) {
-                
-        let task = session.dataTask(with: url) { (data, _, _) in
-            
-            guard let data = data else { return }
-            
-            guard let response = JSONDecoder.decode(Response.self, from: data) else { return }
-            
-            completion(response)
-            
-        }
-        task.resume()
-        
-    }
-    
     static func getImage(with url: URL, completion: @escaping (UIImage) -> Void) {
         
         getResponse(with: url) { response in
             
             guard let imageUrl = URL(string: response.message) else { return }
             
-            let task = session.dataTask(with: imageUrl) { (data, _, _) in
-                
-                guard let data = data else { return }
-                
-                guard let image = UIImage(data: data) else { return }
-                
-                completion(image)
-                
-            }
-            
-            task.resume()
+            imageCancellable = session
+                .dataTaskPublisher(for: imageUrl)
+                .map { data, response in
+                    UIImage(data: data)}
+                .replaceError(with: nil)
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { image in
+                    completion(image!)
+                })
         }
+    }
+    
+    static private func getResponse(with url: URL, completion: @escaping (Response) -> Void) {
+        
+        responseCancellable = session
+            .dataTaskPublisher(for: url)
+            .map(\.data)
+            .decode(type: Response.self, decoder: JSONDecoder())
+            .replaceError(with: Response(message: "Error", status: "Error occured"))
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { response in
+                completion(response)
+            })
+        
     }
     
     static func getBreedList(completion: @escaping ([String]) -> Void) {
         
-        let task = session.dataTask(with: EndPoint.breedList.url) { (data, _, _) in
-            
-            guard let data = data else { return }
-            
-            guard let response = JSONDecoder.decode(ListResponse.self, from: data) else { return }
-                 
-            let message = response.message
-                
-            let breeds = message.map { $0.key }
-                
-            completion(breeds)
-            
-        }
-        
-        task.resume()
+        breedListCancellable = session.dataTaskPublisher(for: EndPoint.breedList.url)
+            .map(\.data)
+            .decode(type: ListResponse.self, decoder: JSONDecoder())
+            .map { $0.message }
+            .replaceError(with: [:])
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { message in
+                let breeds = message.map { $0.key }
+                completion(breeds)
+            })
     }
 }

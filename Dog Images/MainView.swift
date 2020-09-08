@@ -10,19 +10,19 @@ import SwiftUI
 
 struct MainView: View {
     
-    @ObservedObject var favDogModel: FavoriteImageList
+    @ObservedObject var imageList: FavoriteImageList
     
     var body: some View {
         
         TabView {
             
-            HomeView(imageList: favDogModel)
+            HomeView(favoriteImageList: imageList)
                 .tabItem({
                     Image(systemName: "house")
                     Text("Home")
                 })
             
-            FavoriteView(imageList: favDogModel)
+            FavoriteView(favoriteImageList: imageList)
                 .tabItem({
                     Image(systemName: "star")
                     Text("Favorites")
@@ -33,6 +33,6 @@ struct MainView: View {
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        MainView(favDogModel: FavoriteImageList())
+        MainView(imageList: FavoriteImageList())
     }
 }

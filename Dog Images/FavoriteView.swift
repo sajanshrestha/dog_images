@@ -10,16 +10,17 @@ import SwiftUI
 
 struct FavoriteView: View {
     
-    @ObservedObject var imageList: FavoriteImageList
+    @ObservedObject var favoriteImageList: FavoriteImageList
     
     var body: some View {
         
         NavigationView {
             
             List {
-                ForEach(imageList.images) { image in
+                
+                ForEach(favoriteImageList.images) { image in
                     
-                    NavigationLink(destination: DetailView(image: image, imageList: self.imageList), label: {
+                    NavigationLink(destination: DetailView(image: image, imageList: self.favoriteImageList), label: {
                         Image(uiImage: image.image)
                             .resizable()
                             .frame(height: self.height)
@@ -28,7 +29,7 @@ struct FavoriteView: View {
                 }
             }
             .listStyle(GroupedListStyle())
-            .navigationBarTitle(Text("Favorites (\(imageList.images.count))"))
+            .navigationBarTitle(Text("Favorites (\(favoriteImageList.images.count))"))
         }
     }
     
@@ -39,6 +40,6 @@ struct FavoriteView: View {
 
 struct FavView_Previews: PreviewProvider {
     static var previews: some View {
-        FavoriteView(imageList: FavoriteImageList())
+        FavoriteView(favoriteImageList: FavoriteImageList())
     }
 }

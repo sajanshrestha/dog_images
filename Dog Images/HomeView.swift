@@ -15,7 +15,7 @@ struct HomeView: View {
     @State private var selectedBreed = 0
     @State private var breeds = ["random"]
     
-    @ObservedObject var imageList: FavoriteImageList
+    @ObservedObject var favoriteImageList: FavoriteImageList
     
     var body: some View {
         
@@ -31,9 +31,7 @@ struct HomeView: View {
                     }
                 }
                 .frame(height: 50)
-                .onAppear {
-                    self.setImage()
-                }
+                
                 
                 ZStack(alignment: .bottom) {
                     
@@ -53,6 +51,7 @@ struct HomeView: View {
                 }
                 
             }
+                
             .navigationBarItems(
                 trailing: Button(action: {
                     self.setImage()
@@ -60,30 +59,34 @@ struct HomeView: View {
                     Text("Next")
                 }))
                 .onAppear {
+                    
+                    self.setImage()
+                    
                     Service.getBreedList { breeds in
-                        DispatchQueue.main.async {
-                            self.breeds.append(contentsOf: breeds)
-                        }
+                        self.breeds.append(contentsOf: breeds)
+                        
                     }
             }
         }
     }
     
     private func setImage() {
+        
         Service.getRandomDogImage(for: breeds[selectedBreed]) { image in
-            DispatchQueue.main.async {
-                withAnimation(Animation.spring()) {
-                    self.image = image
-                }
+            
+            withAnimation(Animation.spring()) {
+                
+                self.image = image
             }
         }
         self.favoriteImage = false
     }
     
     private func setImageAsFavorite() {
+        
         favoriteImage = true
         let image = DogImage(image: self.image)
-        imageList.addFavoriteImage(image)
+        favoriteImageList.addFavoriteImage(image)
     }
     
     // MARK:- Constants
@@ -95,6 +98,6 @@ struct HomeView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView(imageList: FavoriteImageList())
+        HomeView(favoriteImageList: FavoriteImageList())
     }
 }

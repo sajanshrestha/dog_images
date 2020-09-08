@@ -12,6 +12,8 @@ struct DetailView: View {
     
     var image: DogImage
     
+    @State private var zoomed = false
+    
     @State private var favoriteItem = true
     
     @ObservedObject var imageList: FavoriteImageList
@@ -20,12 +22,17 @@ struct DetailView: View {
         
         Image(uiImage: image.image)
             .resizable()
-            .aspectRatio(contentMode: .fit)
+            .aspectRatio(contentMode: zoomed ? .fill : .fit)
             .navigationBarItems(
                 trailing:
                 HeartImage(favorite: $favoriteItem) {
                     self.toggleFavorite()
             })
+            .onTapGesture(count: 2) {
+                withAnimation {
+                    self.zoomed.toggle()
+                }
+        }
     }
     
     private func toggleFavorite() {
