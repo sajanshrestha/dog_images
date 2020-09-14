@@ -8,20 +8,39 @@
 
 import UIKit
 
-class FavoriteImageList: ObservableObject {
+class ImageList: ObservableObject {
     
-    @Published private var imageList = DogImageList()
+    @Published private(set) var favoriteImages = [FavoriteImage]()
     
-    var images: [DogImage] {
-        imageList.images
+    init() {
+        favoriteImages = fetchImages()
     }
     
-    func addFavoriteImage(_ dogImage: DogImage) {
-        imageList.addFavoriteImage(dogImage)
+    func addFavoriteImage(_ favoriteImage: FavoriteImage) {
+        favoriteImages.append(favoriteImage)
+        DataStorage.save(favoriteImage.json!, withId: favoriteImage.id)
     }
     
-    func removeFavoriteImage(_ dogImage: DogImage) {
-        imageList.removeFavoriteImage(dogImage)
+    func removeFavoriteImage(_ favoriteImage: FavoriteImage) {
+        guard let index = favoriteImages.firstIndex(matching: favoriteImage) else { return }
+        favoriteImages.remove(at: index)
+        DataStorage.removeData(id: favoriteImage.id)
+    }
+    
+    private func fetchImages() -> [FavoriteImage] {
+        
+        let receivedData = DataStorage.getAllData()
+        
+        var images = [FavoriteImage]()
+        
+        for data in receivedData {
+            
+            if let image = FavoriteImage(json: data), image.id.hasPrefix(FavoriteImage.FavoriteImagePrefix) {
+                images.append(image)
+            }
+        }
+        
+        return images
     }
 }
 

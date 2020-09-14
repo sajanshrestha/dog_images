@@ -10,11 +10,11 @@ import SwiftUI
 
 struct HeartImage: View {
     
-    @Binding var favorite: Bool
+    @Binding var addedToList: Bool
     var action: () -> Void
     
     var body: some View {
-        Image(systemName: favorite ? "heart.fill": "heart")
+        Image(systemName: addedToList ? "heart.fill": "heart")
             .font(.title)
             .foregroundColor(.red)
             .onTapGesture {

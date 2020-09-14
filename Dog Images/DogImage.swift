@@ -6,9 +6,34 @@
 //  Copyright © 2020 Sajan Shrestha. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
-struct DogImage: Identifiable {
+struct DogImage: Identifiable, Codable {
+    
     var id = UUID().uuidString
-    var image: UIImage
+    
+    var imageData: Data
+    
+    var memeText: String?
+    
+    var isFavorite = false
+    
+    var json: Data? {
+        return try? JSONEncoder().encode(self)
+    }
+    
+    mutating func setFavorite(to favorite: Bool) {
+        isFavorite = favorite
+    }
+}
+
+extension DogImage {
+    
+    init?(json: Data?) {
+        if json != nil, let favoriteImage = try? JSONDecoder().decode(DogImage.self, from: json!) {
+            self = favoriteImage
+        } else {
+            return nil
+        }
+    }
 }

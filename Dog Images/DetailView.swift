@@ -14,19 +14,28 @@ struct DetailView: View {
     
     @State private var zoomed = false
     
-    @State private var favoriteItem = true
+    @State private var addedToList = true
     
-    @ObservedObject var imageList: FavoriteImageList
+    @ObservedObject var imageList: DogImageModel
     
     var body: some View {
         
-        Image(uiImage: image.image)
-            .resizable()
-            .aspectRatio(contentMode: zoomed ? .fill : .fit)
+        ZStack(alignment: .bottom) {
+            Image(uiImage: UIImage(data: image.imageData)!)
+                .resizable()
+                .aspectRatio(contentMode: zoomed ? .fill : .fit)
+            
+            Text(image.memeText ?? "")
+                .font(Font.custom("menlo", size: 30))
+                .background(Color.white.opacity(0.5).frame(width: UIScreen.main.bounds.width))
+                .padding()
+                .offset(y: -20)
+            
+        }
             .navigationBarItems(
                 trailing:
-                HeartImage(favorite: $favoriteItem) {
-                    self.toggleFavorite()
+                HeartImage(addedToList: $addedToList) {
+                    self.toggleListPresence()
             })
             .onTapGesture(count: 2) {
                 withAnimation {
@@ -35,21 +44,15 @@ struct DetailView: View {
         }
     }
     
-    private func toggleFavorite() {
+    private func toggleListPresence() {
         
-        if favoriteItem {
-            imageList.removeFavoriteImage(image)
-            self.favoriteItem = false
+        if addedToList {
+            imageList.removeDogImage(image)
+            self.addedToList = false
         }
         else {
-            imageList.addFavoriteImage(image)
-            self.favoriteItem = true
+            imageList.addDogImage(image)
+            self.addedToList = true
         }
-    }
-}
-
-struct DetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        DetailView(image: DogImage(image: UIImage()), imageList: FavoriteImageList())
     }
 }

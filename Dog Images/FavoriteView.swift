@@ -10,18 +10,21 @@ import SwiftUI
 
 struct FavoriteView: View {
     
-    @ObservedObject var favoriteImageList: FavoriteImageList
+    @ObservedObject var imageList: DogImageModel
     
     var body: some View {
         
-        NavigationView {
+        let favoriteImages = imageList.dogImages.filter { $0.isFavorite == true }
+        
+        return NavigationView {
             
             List {
                 
-                ForEach(favoriteImageList.images) { image in
+                ForEach(favoriteImages) { image in
                     
-                    NavigationLink(destination: DetailView(image: image, imageList: self.favoriteImageList), label: {
-                        Image(uiImage: image.image)
+                    NavigationLink(destination: DetailView(image: image, imageList: self.imageList), label: {
+                        
+                        Image(uiImage: UIImage(data: image.imageData)!)
                             .resizable()
                             .frame(height: self.height)
                             .cornerRadius(self.cornerRadius)
@@ -29,7 +32,7 @@ struct FavoriteView: View {
                 }
             }
             .listStyle(GroupedListStyle())
-            .navigationBarTitle(Text("Favorites (\(favoriteImageList.images.count))"))
+            .navigationBarTitle(Text("Favorites (\(favoriteImages.count))"))
         }
     }
     
@@ -40,6 +43,6 @@ struct FavoriteView: View {
 
 struct FavView_Previews: PreviewProvider {
     static var previews: some View {
-        FavoriteView(favoriteImageList: FavoriteImageList())
+        FavoriteView(imageList: DogImageModel())
     }
 }

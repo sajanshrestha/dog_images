@@ -10,29 +10,35 @@ import SwiftUI
 
 struct MainView: View {
     
-    @ObservedObject var imageList: FavoriteImageList
+    @ObservedObject var imageList: DogImageModel
     
     var body: some View {
         
         TabView {
             
-            HomeView(favoriteImageList: imageList)
+            HomeView(imageModel: imageList)
                 .tabItem({
                     Image(systemName: "house")
                     Text("Home")
                 })
             
-            FavoriteView(favoriteImageList: imageList)
+            FavoriteView(imageList: imageList)
                 .tabItem({
                     Image(systemName: "star")
                     Text("Favorites")
                 })
+            
+            MemesView(imageList: imageList)
+            .tabItem({
+                Image(systemName: "cloud")
+                Text("Memes")
+            })
         }
     }
 }
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        MainView(imageList: FavoriteImageList())
+        MainView(imageList: DogImageModel())
     }
 }
