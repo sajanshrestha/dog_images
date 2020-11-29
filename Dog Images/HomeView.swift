@@ -82,7 +82,7 @@ struct HomeView: View {
         }
     }
     
-    private let height: CGFloat = 300
+    private let height: CGFloat = 340
 }
 
 struct ContentView_Previews: PreviewProvider {
